@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>韓文聽力選擇遊戲</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    button {
+      margin: 10px;
+      padding: 12px 24px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    #question {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    #result {
+      font-size: 22px;
+      margin-top: 20px;
+      height: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎧 韓文聽力選擇遊戲</h1>
+
+  <div id="question">第 1 題 / 共 5 題</div>
+
+  <audio id="audio" src=""></audio>
+  <div id="controls">
+    <button onclick="playAudio()" id="playBtn">▶️ 播放音檔</button>
+    <button onclick="nextQuestion()" id="nextBtn">➡️ 下一題</button>
+  </div>
+
+  <div id="options"></div>
+
+  <div id="result"></div>
+
+  <button onclick="restartGame()" id="restartBtn" style="display:none;">🔁 重新開始</button>
+
+  <script>
+    const questionBank = [
+      {
+        audio: "audio/sagwa.mp3",
+        correct: "사과",
+        options: ["사과", "포도", "바나나"]
+      },
+      {
+        audio: "audio/gaja.mp3",
+        correct: "가자",
+        options: ["가지", "가자", "가방"]
+      },
+      {
+        audio: "audio/eomma.mp3",
+        correct: "엄마",
+        options: ["아빠", "언니", "엄마"]
+      },
+      {
+        audio: "audio/chingu.mp3",
+        correct: "친구",
+        options: ["선생님", "친구", "학생"]
+      },
+      {
+        audio: "audio/mul.mp3",
+        correct: "물",
+        options: ["불", "물", "밥"]
+      }
+    ];
+
+    let questions = [];
+    let current = 0;
+    let answered = false;
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function restartGame() {
+      questions = shuffle([...questionBank]);
+      current = 0;
+      answered = false;
+      document.getElementById('restartBtn').style.display = 'none';
+      document.getElementById('playBtn').style.display = 'inline-block';
+      document.getElementById('nextBtn').style.display = 'inline-block';
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      answered = false;
+      const q = questions[current];
+      document.getElementById('audio').src = q.audio;
+      document.getElementById('question').textContent = `第 ${current + 1} 題 / 共 ${questions.length} 題`;
+      document.getElementById('result').textContent = "";
+      document.getElementById('nextBtn').disabled = true;
+
+      const shuffled = shuffle([...q.options]);
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = "";
+      shuffled.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt, q.correct, btn);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function playAudio() {
+      document.getElementById('audio').play();
+    }
+
+    function checkAnswer(selected, correct, button) {
+      if (answered) return;
+      answered = true;
+      const result = document.getElementById('result');
+      if (selected === correct) {
+        result.textContent = "✅ 正確！";
+        result.style.color = "green";
+      } else {
+        result.textContent = "❌ 錯誤，再試試看！";
+        result.style.color = "red";
+      }
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    function nextQuestion() {
+      if (!answered) return;
+      if (current < questions.length - 1) {
+        current++;
+        loadQuestion();
+      } else {
+        document.getElementById('question').textContent = "🎉 完成所有題目！";
+        document.getElementById('options').innerHTML = "";
+        document.getElementById('result').textContent = "";
+        document.getElementById('playBtn').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('restartBtn').style.display = 'inline-block';
+      }
+    }
+
+    window.onload = restartGame;
+  </script>
+
+</body>
+</html>
