@@ -33,7 +33,7 @@ if (password !== "1231") { alert("密碼錯誤，無法進入！"); window.locat
 
 <div id="game-area" class="hidden">
 <img id="logo-game" src="logo.png" alt="Logo"/>
-<div id="game-title">11-7-1 句子聽打挑戰</div>
+<div id="game-title"></div>
 <div id="question-number"></div>
 <div id="timer" style="font-size:18px; color:red; margin-bottom:15px;"></div>
 <audio id="audio" controls></audio>
@@ -101,6 +101,10 @@ let timerStarted = false;
 let currentMode = null;
 let startTime = null; // 記錄挑戰開始時間
 
+// 顯示標題與送表單標題
+const displayTitle = "7-1 句子聽打挑戰";
+const fullTitle = "11-7-1 句子聽打挑戰";
+
 function shuffle(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]];}return array;}
 
 function showModeSelect(){
@@ -116,6 +120,7 @@ function showGameArea(){
   nicknameSection.classList.add("hidden");
   timerDiv.style.display=currentMode==="challenge"?"block":"none";
   submitBtn.disabled=true;
+  gameTitle.textContent = displayTitle; // 顯示給玩家的標題
   if(currentMode==="challenge"){
     timeLeft=shuffledQuestions.length*30;
     timerDiv.textContent=`剩餘時間：${timeLeft} 秒`;
@@ -196,14 +201,15 @@ submitBtn.addEventListener("click",()=>{
   const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000); // 花費時間秒數
   const weekdayNames=["日","一","二","三","四","五","六"];
   const weekday=weekdayNames[new Date().getDay()];
-  const gameTitleText=gameTitle.textContent;
+  
   const formURL="https://docs.google.com/forms/d/e/1FAIpQLSd8KhDu_lq6g4aPzkLaNYUUVG9P0E9cRT1R2WVDIkkfFh7WxA/formResponse";
   const formData=new FormData();
   formData.append("entry.1082970818",nickname);
   formData.append("entry.851626887",finalScore);
   formData.append("entry.498226528",elapsedSeconds + " 秒"); // 回傳花費秒數
   formData.append("entry.532888754",weekday);
-  formData.append("entry.1110600272",gameTitleText);
+  formData.append("entry.1110600272",fullTitle); // 使用完整標題回傳表單
+  
   fetch(formURL,{method:"POST",body:formData,mode:"no-cors"})
     .then(()=>alert("成績已送出，謝謝！"))
     .catch(()=>alert("無法送出成績，請稍後再試。"));
